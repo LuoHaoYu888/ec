@@ -66,8 +66,8 @@
                         <span>员工管理</span>
                     </template>
                     <el-menu-item-group>
-                        <el-menu-item index="10-1" @click="fun()">员工列表</el-menu-item>
-                        <el-menu-item index="10-2">员工增加</el-menu-item>
+                        <el-menu-item index="10-1" @click="fun('users')">员工列表</el-menu-item>
+                        <el-menu-item index="10-2" @click="fun('add')">员工增加</el-menu-item>
                         <el-menu-item index="10-3">权限设置</el-menu-item>
                     </el-menu-item-group>
                 </el-submenu>
@@ -97,8 +97,8 @@
           }
         },
       methods:{
-        fun:function () {
-          this.$router.push("/users")
+        fun:function (router) {
+          this.$router.push("/"+router)
         }
       },
         created() {
@@ -107,8 +107,6 @@
               sessionStorage.setItem("name",res.data.name)
             }
             this.msg=sessionStorage.getItem("name")
-          }).catch(err=>{
-
           })
         }
     }

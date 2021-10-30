@@ -6,7 +6,7 @@
             <span style="float: left;">用户管理</span>
             <span style="float: right">账号或姓名：
                     <input v-model="selVal" type="text" ><el-button type="primary" @click="sel()">搜索</el-button>
-                 <el-button  type="primary">添加</el-button>
+                 <el-button  type="primary" @click="fun('add')">添加</el-button>
             </span>
         </div>
         <el-table
@@ -89,6 +89,9 @@
     export default {
         name: "consumer",
       methods:{
+        fun:function (router) {
+          this.$router.push("/"+router)
+        },
           me1:function (resp,val){
             const _this = this
             _this.tableData = resp.data.list
@@ -102,25 +105,25 @@
         jumpPage:function (val) {
           const _this = this
           if (val=='head'){
-            this.$axios.get('/refreshto?currentPage=1&pageSize=4&val='+this.selVal).then(function (resp) {
+            _this.$axios.get('/refreshto?currentPage=1&pageSize=4&val='+this.selVal).then(function (resp) {
               _this.me1(resp,1)
             })
           }else{
-            this.$axios.get('/refreshto?currentPage='+_this.pages+'&pageSize=4&val='+this.selVal).then(function (resp) {
+            _this.$axios.get('/refreshto?currentPage='+_this.pages+'&pageSize=4&val='+this.selVal).then(function (resp) {
               _this.me1(resp,_this.pages)
             })
           }
         },
         handleCurrentChange (currentPage) {
           const _this = this
-          this.$axios.get('/refreshto?currentPage='+currentPage+'&pageSize=4&val='+this.selVal).then(function (resp) {
+          _this.$axios.get('/refreshto?currentPage='+currentPage+'&pageSize=4&val='+this.selVal).then(function (resp) {
             _this.tableData = resp.data.list
             _this.totalNum = resp.data.total
           })
         },
         sel:function (){
           const _this = this
-          this.$axios.get("/refreshto?currentPage=1&pageSize=4&val="+this.selVal).then(resp=>{
+          _this.$axios.get("/refreshto?currentPage=1&pageSize=4&val="+this.selVal).then(resp=>{
             _this.pages=resp.data.pages
             _this.me1(resp,1)
           })
