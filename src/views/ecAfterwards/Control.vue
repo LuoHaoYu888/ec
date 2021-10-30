@@ -9,12 +9,12 @@
                     border
                     style="width: 100%;">
                 <el-table-column
-                        prop="ID"
+                        prop="id"
                         label="编号"
                         width="280">
                 </el-table-column>
                 <el-table-column
-                        prop="types"
+                        prop="typeName"
                         label="一级类别名称"
                         width="1065">
                 </el-table-column>
@@ -27,17 +27,20 @@
                     </template>
                 </el-table-column>
             </el-table>
-            <div>
-                <span >共有 <span style="color: coral">{{tableData.length}}</span> 条记录</span>
-                <el-button-group>
-                    <el-button type="primary">首页</el-button>
-                    <el-button type="primary">上一页</el-button>
-                    <el-button type="primary">下一页</el-button>
-                    <el-button type="primary">尾页</el-button>
-                </el-button-group>
-                <span>当前页数:1/1&nbsp;</span>
-                <span>输入页数: <input type="text" style="width: 25px"> <input type="button" value="确定" disabled=""></span>
-            </div>
+          <div v-if="pageshow">
+
+            <el-button type="button" @click="jumpPage('head')">首页</el-button>
+            <el-pagination ref="pagination"
+                           background prev-text="上一页" next-text="下一页"
+                           layout="prev, pager, next, slot,jumper"
+                           @current-change="handleCurrentChange"
+                           :current-page="currentPage"
+                           :total="totalNum"
+                           :page-size="pagesize"
+                           style="display: inline-block;padding-left: 0px;">
+            </el-pagination>
+            <el-button type="button" @click="jumpPage('foot')">尾页</el-button>
+          </div>
         </div>
 </template>
 
@@ -45,14 +48,52 @@
     export default {
         name: "Control",
         methods: {
-
+          me1:function (resp,val){
+            const _this = this
+            _this.tableData = resp.data.list
+            _this.totalNum = resp.data.total
+            _this.currentPage = val;//cur_page 当前页
+            _this.pageshow = false;//让分页隐藏
+            _this.$nextTick(() => {//重新渲染分页
+              _this.pageshow = true;
+            });
+          },
+          jumpPage:function (val) {
+            const _this = this
+            if (val=='head'){
+              _this.$axios.get('/refreshToG?currentPage=1&pageSize=1').then(function (resp) {
+                _this.me1(resp,1)
+              })
+            }else{
+              _this.$axios.get('/refreshToG?currentPage='+_this.pages+'&pageSize=1').then(function (resp) {
+                _this.me1(resp,_this.pages)
+              })
+            }
+          },
+          handleCurrentChange (currentPage) {
+            const _this = this
+            _this.$axios.get('/refreshToG?currentPage='+currentPage+'&pageSize=1').then(function (resp) {
+              _this.tableData = resp.data.list
+              _this.totalNum = resp.data.total
+            })
+          },
         },
-
-        data() {
+      created() {
+        this.$axios.get("/refreshToG?currentPage=1&pageSize=1").then(resp=>{
+          const _this = this
+          _this.tableData=resp.data.list
+          _this.totalNum = resp.data.total
+          _this.pages=resp.data.pages
+        })
+      },
+      data() {
             return {
-                tableData: [{
-                    ID:1,types:'家用洗衣机'
-                }]
+                tableData: [],
+              pagesize: '1',
+              totalNum: '',
+              currentPage: "1",
+              pages:0,
+              pageshow: true,
             }
         }
     }
